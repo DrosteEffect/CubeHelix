@@ -1,7 +1,7 @@
-function [map,lo,hi] = cubehelix(N,start,rots,sat,gamma,irange,domain)
+function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 % Generate an RGB colormap of Dave Green's CubeHelix colorscheme. With range and domain control.
 %
-% (c) 2013 Stephen Cobeldick
+% (c) 2013-2020 Stephen Cobeldick
 %
 % Returns a colormap with colors defined by Dave Green's CubeHelix colorscheme.
 % The colormap nodes are selected along a tapered helix in the RGB color cube,
@@ -16,10 +16,10 @@ function [map,lo,hi] = cubehelix(N,start,rots,sat,gamma,irange,domain)
 %%% Syntax:
 %  map = cubehelix;
 %  map = cubehelix(N);
-%  map = cubehelix(N,start,rots,sat,gamma);
-%  map = cubehelix(N,start,rots,sat,gamma,irange);
-%  map = cubehelix(N,start,rots,sat,gamma,irange,domain);
-%  map = cubehelix(N,[start,rots,sat,gamma],...)
+%  map = cubehelix(N,start,rots,satn,gamma);
+%  map = cubehelix(N,start,rots,satn,gamma,irange);
+%  map = cubehelix(N,start,rots,satn,gamma,irange,domain);
+%  map = cubehelix(N,[start,rots,satn,gamma],...)
 %  map = cubehelix([],...)
 % [map,lo,hi] = cubehelix(...)
 %
@@ -27,9 +27,7 @@ function [map,lo,hi] = cubehelix(N,start,rots,sat,gamma,irange,domain)
 % For more information and examples: http://www.mrao.cam.ac.uk/~dag/CUBEHELIX/
 %
 % Note: The original specification (the links above) misnamed the saturation
-% option as "hue". In this function the saturation option is named "sat".
-%
-% See also BREWERMAP RGBPLOT COLORMAP COLORBAR SURF CONTOURF IMAGE CONTOURCMAP JET LBMAP
+% option as "hue". In this function the saturation option is named "satn".
 %
 %% Range and Domain %%
 %
@@ -50,14 +48,14 @@ function [map,lo,hi] = cubehelix(N,start,rots,sat,gamma,irange,domain)
 %        0.62751      0.47498      0.28642
 %        0.91366      0.71351      0.95395 % <- color, not gray shade
 %
-% The function "colormap_view" demonstrates the effects of these options.
+% The function CUBEHELIX_VIEW demonstrates the effects of these options.
 %
 %% Examples %%
 %
 %%% New colors for the COLORMAP example:
-% load spine
-% image(X)
-% colormap(cubehelix)
+% >> S = load('spine');
+% >> image(S.X)
+% >> colormap(cubehelix)
 %
 %%% New colors for the SURF example:
 % [X,Y,Z] = peaks(30);
@@ -70,9 +68,9 @@ function [map,lo,hi] = cubehelix(N,start,rots,sat,gamma,irange,domain)
 %%% Inputs (*=default):
 %  N     = NumericScalar, an integer to specify the colormap length.
 %        = *[], same length as the current figure's colormap (see COLORMAP).
-%  start = NumericScalar, *0.5, the helix's start color (modulus 3): R=1, G=2, B=3.
+%  start = NumericScalar, *+0.5, the helix's start color (modulus 3): R=1, G=2, B=3.
 %  rots  = NumericScalar, *-1.5, the number of R->G->B rotations over the scheme length.
-%  sat   = NumericScalar, *1, the saturation controls how saturated the colors are.
+%  satn  = NumericScalar, *1, controls how saturated the colors are.
 %  gamma = NumericScalar, *1, change the gamma to emphasize low or high intensity values.
 %  irange = NumericVector, *[0,1], range of brightness levels of the scheme's endnodes. Size 1x2.
 %  domain = NumericVector, *[0,1], domain of the CubeHelix calculation (endnode positions). Size 1x2.
@@ -82,26 +80,20 @@ function [map,lo,hi] = cubehelix(N,start,rots,sat,gamma,irange,domain)
 %  lo  = LogicalMatrix, true where <map> values<0 were clipped to 0. Size Nx3
 %  hi  = LogicalMatrix, true where <map> values>1 were clipped to 1. Size Nx3
 %
-% [map,lo,hi] = cubehelix(N, start,rots,sat,gamma, irange, domain)
-% OR with the first four parameters in one vector:
-% [map,lo,hi] = cubehelix(N, [start,rots,sat,gamma], irange, domain)
+% See also BREWERMAP LBMAP PARULA LINES RGBPLOT COLORMAP COLORBAR AXES SET CONTOURF
 
 %% Input Wrangling %%
 %
-if nargin==0 || (isnumeric(N)&&isempty(N))
+err = 'First input must be a real positive scalar numeric or [].';
+if nargin==0 || (isnumeric(N)&&isequal(N,[]))
+	% Default is the same as MATLAB colormaps:
 	N = size(get(gcf,'colormap'),1);
 else
-	assert(isnumeric(N)&&isscalar(N),'First input <N> must be a scalar numeric.')
-	assert(isreal(N),'First input <N> must be a real numeric: %g+%gi',N,imag(N))
-	assert(fix(N)==N&&N>0,'First input <N> must be positive integer: %g',N)
+	assert(isnumeric(N)&&isscalar(N),...
+		'SC:cubehelix:NotScalarNumeric',err)
+	assert(isreal(N)&&isfinite(N)&&fix(N)==N&&N>=0,...
+		'SC:cubehelix:NotRealPositive',err)
 	N = double(N);
-end
-%
-if N==0
-	map = ones(0,3);
-	lo = false(0,3);
-	hi = false(0,3);
-	return
 end
 %
 iss = @(x)isnumeric(x)&&isreal(x)&&isscalar(x)&&isfinite(x);
@@ -110,9 +102,9 @@ isn = @(x,n)isnumeric(x)&&isreal(x)&&numel(x)==n&&all(isfinite(x(:)));
 % Parameters:
 if nargin<2
 	% Default parameter values.
-	start = 0.5;
+	start = +0.5;
 	rots  = -1.5;
-	sat   = 1;
+	satn  = 1;
 	gamma = 1;
 elseif nargin<5
 	% Parameters are in a vector.
@@ -120,25 +112,35 @@ elseif nargin<5
 		irange = rots;
 	end
 	if nargin>3
-		domain = sat;
+		domain = satn;
 	end
-	assert(isn(start,4)&&isvector(start),'Second input can be a 1x4 real numeric of parameter values.')
+	assert(isn(start,4)&&isvector(start),...
+		'SC:cubehelix:NotVectorParameters',...
+		'Second input can be a 1x4 real numeric of parameter values.')
 	start = double(start);
-	gamma = start(4); sat = start(3); rots = start(2); start = start(1);
+	gamma = start(4);
+	satn  = start(3);
+	rots  = start(2);
+	start = start(1);
 else
 	% Parameters as individual scalar values.
-	assert(iss(start),'Input <start> must be a real scalar numeric.')
-	assert(iss(rots), 'Input <rots> must be a real scalar numeric.')
-	assert(iss(sat),  'Input <sat> must be a real scalar numeric.')
-	assert(iss(gamma),'Input <gamma> must be a real scalar numeric.')
-	start=double(start); rots=double(rots); sat=double(sat); gamma=double(gamma);
+	rsn = 'Input <%s> must be a real scalar numeric.';
+	assert(iss(start), 'SC:cubehelix:NotScalarNumeric_start', rsn,'start')
+	assert(iss(rots),  'SC:cubehelix:NotScalarNumeric_rots',  rsn,'rots')
+	assert(iss(satn),  'SC:cubehelix:NotScalarNumeric_satn',  rsn,'satn')
+	assert(iss(gamma), 'SC:cubehelix:NotScalarNumeric_gamma', rsn,'gamma')
+	start = double(start);
+	rots  = double(rots);
+	satn  = double(satn);
+	gamma = double(gamma);
 end
 %
 % Range:
 if any(nargin==[0,1,2,5])
 	irange = [0,1];
 else
-	assert(isn(irange,2),'Input <irange> must be a 1x2 real numeric.')
+	assert(isn(irange,2),'SC:cubehelix:NotVector_irange',...
+		'Input <irange> must be a 1x2 real numeric.')
 	irange = double(irange);
 end
 %
@@ -146,8 +148,18 @@ end
 if any(nargin==[0,1,2,3,5,6])
 	domain = [0,1];
 else
-	assert(isn(domain,2),'Input <domain> must be a 1x2 real numeric.')
+	assert(isn(domain,2),'SC:cubehelix:NotVector_domain',...
+		'Input <domain> must be a 1x2 real numeric.')
 	domain = double(domain);
+end
+%
+prm = [start;rots;satn;gamma;irange(:);domain(:)];
+%
+if N==0
+	map = ones(0,3);
+	lo = false(0,3);
+	hi = false(0,3);
+	return
 end
 %
 %% Core Function %%
@@ -156,7 +168,7 @@ vec = linspace(domain(1),domain(2),abs(N)).';
 ang = 2*pi * (start/3+1+rots*vec);
 csm = [cos(ang),sin(ang)].';
 fra = vec.^gamma;
-amp = sat .* fra .* (1-fra)/2;
+amp = satn .* fra .* (1-fra)/2;
 %
 tmp = linspace(0,1,abs(N)).'.^gamma;
 tmp = irange(1)*(1-tmp) + irange(2)*(tmp);
@@ -175,7 +187,7 @@ map = max(0,min(1,map));
 %
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cubehelix
-% Copyright (c) 2013 Stephen Cobeldick
+% Copyright (c) 2013-2020 Stephen Cobeldick
 %
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
