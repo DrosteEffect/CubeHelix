@@ -1,7 +1,7 @@
 function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 % Generate an RGB colormap of Dave Green's CubeHelix colorscheme. With range and domain control.
 %
-% (c) 2013-2020 Stephen Cobeldick
+% (c) 2013-2022 Stephen Cobeldick
 %
 % Returns a colormap with colors defined by Dave Green's CubeHelix colorscheme.
 % The colormap nodes are selected along a tapered helix in the RGB color cube,
@@ -65,47 +65,48 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 %
 %% Input and Output Arguments %%
 %
-%%% Inputs (*=default):
+%%% Inputs (**=default):
 %  N     = NumericScalar, an integer to specify the colormap length.
-%        = *[], same length as the current figure's colormap (see COLORMAP).
-%  start = NumericScalar, *+0.5, the helix's start color (modulus 3): R=1, G=2, B=3.
-%  rots  = NumericScalar, *-1.5, the number of R->G->B rotations over the scheme length.
-%  satn  = NumericScalar, *1, controls how saturated the colors are.
-%  gamma = NumericScalar, *1, change the gamma to emphasize low or high intensity values.
-%  irange = NumericVector, *[0,1], range of brightness levels of the scheme's endnodes. Size 1x2.
-%  domain = NumericVector, *[0,1], domain of the CubeHelix calculation (endnode positions). Size 1x2.
+%        = []**, same length as the current figure's colormap (see COLORMAP).
+%  start = NumericScalar, +0.5**, the helix's start color (modulus 3): R=1, G=2, B=3.
+%  rots  = NumericScalar, -1.5**, the number of R->G->B rotations over the scheme length.
+%  satn  = NumericScalar,  1.0**, controls how saturated the colors are.
+%  gamma = NumericScalar,  1.0**, change the gamma to emphasize low or high intensity values.
+%  irange = NumericVector, [0,1]**, range of brightness levels of the scheme's endnodes.
+%  domain = NumericVector, [0,1]**, domain of the CubeHelix calculation (endnode positions).
 %
 %%% Outputs:
 %  map = NumericMatrix, a colormap of RGB values between 0 and 1. Size Nx3
 %  lo  = LogicalMatrix, true where <map> values<0 were clipped to 0. Size Nx3
 %  hi  = LogicalMatrix, true where <map> values>1 were clipped to 1. Size Nx3
 %
-% See also BREWERMAP LBMAP PARULA LINES RGBPLOT COLORMAP COLORBAR AXES SET CONTOURF
+% See also CUBEHELIX_VIEW PRESET_COLORMAP BREWERMAP MAXDISTCOLOR LBMAP
+% PARULA LINES RGBPLOT COLORMAP COLORBAR PLOT PLOT3 AXES SET CONTOURF
 
 %% Input Wrangling %%
 %
-err = 'First input must be a real positive scalar numeric or [].';
+err = 'First input <N> must be a real scalar numeric or [].';
 if nargin==0 || (isnumeric(N)&&isequal(N,[]))
-	% Default is the same as MATLAB colormaps:
-	N = size(get(gcf,'colormap'),1);
+	% Default N is the same as MATLAB colormaps:
+	N = cmDefaultN();
 else
 	assert(isnumeric(N)&&isscalar(N),...
-		'SC:cubehelix:NotScalarNumeric',err)
+		'SC:cubehelix:N:NotNumericScalar', err)
 	assert(isreal(N)&&isfinite(N)&&fix(N)==N&&N>=0,...
-		'SC:cubehelix:NotRealPositive',err)
+		'SC:cubehelix:N:NotRealWhole', err)
 	N = double(N);
 end
 %
 iss = @(x)isnumeric(x)&&isreal(x)&&isscalar(x)&&isfinite(x);
 isn = @(x,n)isnumeric(x)&&isreal(x)&&numel(x)==n&&all(isfinite(x(:)));
 %
-% Parameters:
+% Start, rotations, saturation, and gamma parameters:
 if nargin<2
 	% Default parameter values.
 	start = +0.5;
 	rots  = -1.5;
-	satn  = 1;
-	gamma = 1;
+	satn  = +1.0;
+	gamma = +1.0;
 elseif nargin<5
 	% Parameters are in a vector.
 	if nargin>2
@@ -115,8 +116,8 @@ elseif nargin<5
 		domain = satn;
 	end
 	assert(isn(start,4)&&isvector(start),...
-		'SC:cubehelix:NotVectorParameters',...
-		'Second input can be a 1x4 real numeric of parameter values.')
+		'SC:cubehelix:start:NotVectorParameters',...
+		'Second input <start> can be a 1x4 real numeric of parameter values.')
 	start = double(start);
 	gamma = start(4);
 	satn  = start(3);
@@ -125,10 +126,10 @@ elseif nargin<5
 else
 	% Parameters as individual scalar values.
 	rsn = 'Input <%s> must be a real scalar numeric.';
-	assert(iss(start), 'SC:cubehelix:NotScalarNumeric_start', rsn,'start')
-	assert(iss(rots),  'SC:cubehelix:NotScalarNumeric_rots',  rsn,'rots')
-	assert(iss(satn),  'SC:cubehelix:NotScalarNumeric_satn',  rsn,'satn')
-	assert(iss(gamma), 'SC:cubehelix:NotScalarNumeric_gamma', rsn,'gamma')
+	assert(iss(start), 'SC:cubehelix:start:NotNumericScalar', rsn,'start')
+	assert(iss(rots),  'SC:cubehelix:rots:NotNumericScalar',  rsn,'rots')
+	assert(iss(satn),  'SC:cubehelix:satn:NotNumericScalar',  rsn,'satn')
+	assert(iss(gamma), 'SC:cubehelix:gamma:NotNumericScalar', rsn,'gamma')
 	start = double(start);
 	rots  = double(rots);
 	satn  = double(satn);
@@ -139,7 +140,8 @@ end
 if any(nargin==[0,1,2,5])
 	irange = [0,1];
 else
-	assert(isn(irange,2),'SC:cubehelix:NotVector_irange',...
+	assert(isn(irange,2),...
+		'SC:cubehelix:irange:NotNumericVector',...
 		'Input <irange> must be a 1x2 real numeric.')
 	irange = double(irange);
 end
@@ -148,15 +150,16 @@ end
 if any(nargin==[0,1,2,3,5,6])
 	domain = [0,1];
 else
-	assert(isn(domain,2),'SC:cubehelix:NotVector_domain',...
+	assert(isn(domain,2),...
+		'SC:cubehelix:domain:NotNumericVector',...
 		'Input <domain> must be a 1x2 real numeric.')
 	domain = double(domain);
 end
 %
 prm = [start;rots;satn;gamma;irange(:);domain(:)];
+map = nan(N,3);
 %
 if N==0
-	map = ones(0,3);
 	lo = false(0,3);
 	hi = false(0,3);
 	return
@@ -176,18 +179,35 @@ tmp = irange(1)*(1-tmp) + irange(2)*(tmp);
 cof = [-0.14861,1.78277;-0.29227,-0.90649;1.97294,0];
 %
 vec = sign(N)*(1:abs(N)) - min(0,N-1);
-for m = abs(N):-1:1
-	n = vec(m);
-	map(m,:) = tmp(n) + amp(n) * (cof*csm(:,n));
+for ii = 1:abs(N)
+	jj = vec(ii);
+	map(ii,:) = tmp(jj) + amp(jj)*(cof*csm(:,jj));
 end
 %
 lo = map<0;
 hi = map>1;
+%
 map = max(0,min(1,map));
 %
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cubehelix
-% Copyright (c) 2013-2020 Stephen Cobeldick
+function N = cmDefaultN()
+% Get the colormap size from the current figure or default colormap.
+try
+	F = get(groot,'CurrentFigure');
+catch %#ok<CTCH> pre HG2
+	N = size(get(gcf,'colormap'),1);
+	return
+end
+if isempty(F)
+	N = size(get(groot,'DefaultFigureColormap'),1);
+else
+	N = size(F.Colormap,1);
+end
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cmDefaultN
+%
+% Copyright (c) 2013-2022 Stephen Cobeldick
 %
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
