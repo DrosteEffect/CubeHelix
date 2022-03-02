@@ -13,17 +13,19 @@ The CUBEHELIX algorithm is defined here: http://astron-soc.in/bulletin/11June/28
 
 For more information and examples: http://www.mrao.cam.ac.uk/~dag/CUBEHELIX/
 
+The original specification (the links above) misnamed the saturation option as "hue". In the CUBEHELIX function the saturation option is named "satn".
+
 ### Examples ###
 
-    % New colors for the COLORMAP example: 
-    S = load('spine'); 
+    % New colors for the COLORMAP example:
+    S = load('spine');
     image(S.X)
     colormap(cubehelix) % default parameters
     
-    % New colors for the SURF example: 
-    [X,Y,Z] = peaks(30); 
-    surfc(X,Y,Z) 
-    colormap(cubehelix([],0.5,-1.5,1,1,[0.29,0.92])) 
+    % New colors for the SURF example:
+    [X,Y,Z] = peaks(30);
+    surfc(X,Y,Z)
+    colormap(cubehelix([],0.5,-1.5,1,1,[0.29,0.92]))
     axis([-3,3,-3,3,-10,5])
 
 ### Bonus Function ###
@@ -35,6 +37,11 @@ R2014b or later: CUBEHELIX_VIEW can also update other axes' or figures' colormap
     S = load('spine');
     image(S.X)
     cubehelix_view(gca)
+
+PRESET_COLORMAP is a wrapper for any colormap function, storing the function and any parameter values for future calls.
+
+    preset_colormap(@cubehelix, 0.5,-1.5,1,1)
+    colormap(preset_colormap)
 
 ### Notes ###
 
