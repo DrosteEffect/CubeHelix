@@ -67,7 +67,7 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 %
 %%% Inputs (**=default):
 %  N     = NumericScalar, an integer to specify the colormap length.
-%        = []**, same length as the current figure's colormap (see COLORMAP).
+%        = []**, same length as MATLAB's inbuilt colormap functions.
 %  start = NumericScalar, +0.5**, the helix's start color (modulus 3): R=1, G=2, B=3.
 %  rots  = NumericScalar, -1.5**, the number of R->G->B rotations over the scheme length.
 %  satn  = NumericScalar,  1.0**, controls how saturated the colors are.
