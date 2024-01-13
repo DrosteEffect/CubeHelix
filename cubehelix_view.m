@@ -75,6 +75,13 @@ upb = false;
 hgv = [];
 nmr = dfn;
 %
+if false
+	% >R2019a only!
+	fnh = @colororder; %#ok<UNRCH>
+else % default
+	fnh = @colormap;
+end
+%
 err = 'First input <N> must be a real scalar numeric or [].';
 if nargin==0 || isnumeric(N)&&isequal(N,[])
 	N = dfn;
@@ -89,7 +96,7 @@ elseif all(ishghandle(N(:))) % R2014b or later
 		'SC:cubehelix_view:N:NotAxesNorFigureHandles',...
 		'First input <N> may be an array of figure or axes handles.')
 	hgv = N(:);
-	nmr = arrayfun(@(h)size(colormap(h),1),hgv);
+	nmr = arrayfun(@(h)size(fnh(h),1),hgv);
 	N = nmr(1);
 else
 	error('SC:cubehelix_view:N:UnsupportedInput', err)
@@ -272,7 +279,7 @@ end
 		% Update external axes/figure colormaps:
 		nmr(1) = N;
 		for k = 1:numel(hgv)
-			colormap(hgv(k),cubehelix(nmr(k), prw(1:4),prw(5:6),prw(7:8)));
+			fnh(hgv(k),cubehelix(nmr(k), prw(1:4),prw(5:6),prw(7:8)));
 		end
 		%
 		drawnow()
