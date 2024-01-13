@@ -1,7 +1,7 @@
 function [map,lo,hi,prm] = cubehelix_view(N,start,rots,satn,gamma,irange,domain)
 % An interactive figure for CubeHelix colormap parameter selection. With demo!
 %
-% (c) 2013-2022 Stephen Cobeldick
+% (c) 2013-2024 Stephen Cobeldick
 %
 % View Dave Green's CubeHelix colorschemes in a figure.
 %
@@ -45,9 +45,9 @@ function [map,lo,hi,prm] = cubehelix_view(N,start,rots,satn,gamma,irange,domain)
 %
 %% Input and Output Arguments %%
 %
-%%% Inputs (*=default):
+%%% Inputs (**=default):
 %  N     = NumericScalar, an integer to define the colormap length.
-%        = *[], colormap length of two hundred and fifty-six (256).
+%        = []**, colormap length of two hundred and fifty-six (256).
 %        = Array of axes/figure handles. R2014b or later only.
 %  start = NumericScalar, the helix's start color, with R=1, G=2, B=3 (modulus 3).
 %  rots  = NumericScalar, the number of R->G->B rotations over the scheme length.
@@ -85,7 +85,7 @@ elseif isnumeric(N)
 		'SC:brewermap_view:N:NotRealWholeNorNaN', err)
 	N = double(N);
 elseif all(ishghandle(N(:))) % R2014b or later
-	assert(isgraphics(N(:),'axes')|isgraphics(N(:),'figure'),...
+	assert(all(isgraphics(N(:),'axes')|isgraphics(N(:),'figure')),...
 		'SC:cubehelix_view:N:NotAxesNorFigureHandles',...
 		'First input <N> may be an array of figure or axes handles.')
 	hgv = N(:);
@@ -98,9 +98,9 @@ end
 idp = 'SC:cubehelix_view:start:NotParameterVector';
 idi = 'SC:cubehelix_view:irange:NotNodeRangeVector';
 idd = 'SC:cubehelix_view:domain:NotNodeDomainVector';
-txp = '%s input can be a vector of the four CubeHelix parameters.';
-txi = '%s input can be a vector of the endnode lightness levels (irange).';
-txd = '%s input can be a vector of the endnode relative positions (domain).';
+txp = '%s input can be a vector of the four CubeHelix parameters: [start,rots,satn,gamma].';
+txi = '%s input can be a vector of the endnode lightness levels <irange>.';
+txd = '%s input can be a vector of the endnode relative positions <domain>.';
 %
 % Default pseudo-random parameters:
 if nargin==0 || new
@@ -148,7 +148,7 @@ mjr = [100; 5; 5; 5; 5; 1; 1; 1; 1]; % major step
 stp = [mnr/100,mjr/10]; % [minor,major] step
 %
 % Define the 3D cube axis order:
-xyz = 'RGB'; % choose order
+xyz = 'RGB'; % specify the order here.
 [~,xyz] = ismember(xyz,'RGB');
 %
 % Parameter names for each slider:
@@ -248,7 +248,7 @@ end
 		set(cbIm(2), 'CData', repmat(mag,[1,1,3]))
 		%
 		% Update 2D line / 3D patch values:
-		if  get(is2D, 'Value')
+		if get(is2D, 'Value')
 			set(ln2D, 'XData',linspace(0,1,abs(N)));
 			set(ln2D,{'YData'},num2cell([map,mag],1).');
 		else
@@ -269,7 +269,7 @@ end
 		set(pTxt(1), 'String',sprintf('%.0f',N));
 		set(pTxt(2:end), {'String'},sprintfc('%.2f',prw));
 		%
-		% Update external axes/figure:
+		% Update external axes/figure colormaps:
 		nmr(1) = N;
 		for k = 1:numel(hgv)
 			colormap(hgv(k),cubehelix(nmr(k), prw(1:4),prw(5:6),prw(7:8)));
@@ -319,6 +319,7 @@ end
 		% Parameter value step length:
 		pvs = 0.03;
 		% Functions to randomly specify new parameter values:
+		randfn = cell(1,8);
 		randfn(7:8) = {@()rand(1,1).^42,@()1-rand(1,1).^42};
 		randfn(3:4) = {@()sqrt(-log(rand(1,1))*2)};
 		randfn(1:2) = {@()3*rand(1,1),@()randn(1,1)};
@@ -390,7 +391,7 @@ x = double(x(:));
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%chvChk
 %
-% Copyright (c) 2013-2022 Stephen Cobeldick
+% Copyright (c) 2013-2024 Stephen Cobeldick
 %
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.

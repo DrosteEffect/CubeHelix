@@ -1,7 +1,7 @@
 function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 % Generate an RGB colormap of Dave Green's CubeHelix colorscheme. With range and domain control.
 %
-% (c) 2013-2022 Stephen Cobeldick
+% (c) 2013-2024 Stephen Cobeldick
 %
 % Returns a colormap with colors defined by Dave Green's CubeHelix colorscheme.
 % The colormap nodes are selected along a tapered helix in the RGB color cube,
@@ -35,18 +35,18 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 % exactly the same as Dave Green's original algorithm: from black to white.
 %
 % The option <irange> sets the intensity level of the colormap's endnodes:
-%  cubehelix(3, [0.5,-1.5,1,1], [0.2,0.8]) % irange=[0.2,0.8]
-%  ans = 0.2          0.2          0.2     % <- gray, not black
-%        0.62751      0.47498      0.28642
-%        0.8          0.8          0.8     % <- gray, not white
+% >> cubehelix(3, [0.5,-1.5,1,1], [0.2,0.8]) % irange=[0.2,0.8]
+% ans = 0.2          0.2          0.2     % <- gray (not black)
+%       0.62751      0.47498      0.28642
+%       0.8          0.8          0.8     % <- gray (not white)
 %
 % The option <domain> sets the sampling window for the CubeHelix, such
 % that the tapered-helix does not taper all the way to unsaturated (gray).
 % This allows the colormap to end with colors rather than gray shades:
-%  cubehelix(3, [0.5,-1.5,1,1], [0.2,0.8], [0.3,0.7]) % domain=[0.3,0.7]
-%  ans = 0.020144     0.29948      0.15693 % <- color, not gray shade
-%        0.62751      0.47498      0.28642
-%        0.91366      0.71351      0.95395 % <- color, not gray shade
+% >> cubehelix(3, [0.5,-1.5,1,1], [0.2,0.8], [0.3,0.7]) % domain=[0.3,0.7]
+% ans = 0.020144     0.29948      0.15693 % <- color (not gray shade)
+%       0.62751      0.47498      0.28642
+%       0.91366      0.71351      0.95395 % <- color (not gray shade)
 %
 % The function CUBEHELIX_VIEW demonstrates the effects of these options.
 %
@@ -58,10 +58,10 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 % >> colormap(cubehelix)
 %
 %%% New colors for the SURF example:
-% [X,Y,Z] = peaks(30);
-% surfc(X,Y,Z)
-% colormap(cubehelix([],0.7,-0.7,2,1,[0.1,0.9],[0.1,0.9]))
-% axis([-3,3,-3,3,-10,5])
+% >> [X,Y,Z] = peaks(30);
+% >> surfc(X,Y,Z)
+% >> colormap(cubehelix([],0.7,-0.7,2,1,[0.1,0.9],[0.1,0.9]))
+% >> axis([-3,3,-3,3,-10,5])
 %
 %% Input and Output Arguments %%
 %
@@ -80,8 +80,8 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 %  lo  = LogicalMatrix, true where <map> values<0 were clipped to 0. Size Nx3
 %  hi  = LogicalMatrix, true where <map> values>1 were clipped to 1. Size Nx3
 %
-% See also CUBEHELIX_VIEW PRESET_COLORMAP BREWERMAP MAXDISTCOLOR LBMAP
-% PARULA LINES RGBPLOT COLORMAP COLORBAR PLOT PLOT3 AXES SET CONTOURF
+% See also CUBEHELIX_VIEW PRESET_COLORMAP BREWERMAP MAXDISTCOLOR CMOCEAN
+% LBMAP PARULA LINES RGBPLOT COLORMAP COLORBAR PLOT PLOT3 AXES SET CONTOURF
 
 %% Input Wrangling %%
 %
@@ -207,7 +207,7 @@ end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cmDefaultN
 %
-% Copyright (c) 2013-2022 Stephen Cobeldick
+% Copyright (c) 2013-2024 Stephen Cobeldick
 %
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
