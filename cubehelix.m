@@ -28,10 +28,6 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 % Note: The original specification (the links above) misnamed the saturation
 % option as "hue". In this function the saturation option is named "satn".
 %
-%% Dependencies %%
-%
-% None
-%
 %% Range and Domain %%
 %
 % Using the default <irange> and <domain> vectors ([0,1]) creates colormaps
@@ -86,6 +82,10 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 %   map = NumericMatrix, a colormap of RGB values between 0 and 1. Size Nx3
 %   lo  = LogicalMatrix, true where <map> values<0 were clipped to 0. Size Nx3
 %   hi  = LogicalMatrix, true where <map> values>1 were clipped to 1. Size Nx3
+%
+%% Dependencies %%
+%
+% * MATLAB R2009a or later.
 %
 % See also CUBEHELIX_VIEW PRESET_COLORMAP BREWERMAP MAXDISTCOLOR CMOCEAN
 % LBMAP PARULA LINES RGBPLOT COLORMAP COLORBAR PLOT PLOT3 AXES SET CONTOURF

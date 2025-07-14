@@ -9,10 +9,6 @@ function map = preset_colormap(N,varargin)
 %   map = preset_colormap(N)           % generate colormap
 %   map = preset_colormap              % generate colormap
 %
-%% Dependencies %%
-%
-% None
-%
 %% Examples %%
 %
 %   >> preset_colormap(@cubehelix,0.25,-0.67,1.5,1)
@@ -34,6 +30,10 @@ function map = preset_colormap(N,varargin)
 %   >> contourfm(topo, topolegend);
 %   >> contourcmap('preset_colormap', 'Colorbar','on', 'Location','horizontal','TitleString','Contour Intervals in Meters');
 %   >> plotm(lat, long, 'k')
+%
+%% Dependencies %%
+%
+% None
 %
 % See also BREWERMAP CUBEHELIX CMOCEAN LBMAP COLORMAP CONTOURCMAP
 persistent fnh arg

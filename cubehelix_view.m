@@ -31,10 +31,6 @@ function [map,lo,hi,prm] = cubehelix_view(N,start,rots,satn,gamma,irange,domain)
 % Note: The original specification (the links above) misnamed the saturation
 % option as "hue". In this function the saturation option is named "satn".
 %
-%% Dependencies %%
-%
-% cubehelix.m <www.mathworks.com/matlabcentral/fileexchange/43700>
-%
 %% Adjust Colormaps of Figures or Axes %%
 %
 % For R2014b or later: provide axes or figure handles as the first input
@@ -61,6 +57,11 @@ function [map,lo,hi,prm] = cubehelix_view(N,start,rots,satn,gamma,irange,domain)
 %   map = NumericMatrix, the colormap defined when the figure is closed.
 %   lo  = LogicalMatrix, true where <map> values<0 were clipped to 0. Size Nx3
 %   hi  = LogicalMatrix, true where <map> values>1 were clipped to 1. Size Nx3
+%
+%% Dependencies %%
+%
+% * MATLAB R2009a or later.
+% * cubehelix.m <www.mathworks.com/matlabcentral/fileexchange/43700>
 %
 % See also CUBEHELIX BREWERMAP PRESET_COLORMAP MAXDISTCOLOR
 % RGBPLOT COLORMAP COLORMAPEDITOR COLORBAR UICONTROL ADDLISTENER
