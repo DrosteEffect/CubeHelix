@@ -6,28 +6,30 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 % with a continuous increase in perceived intensity. Black-and-white printing
 % using postscript results in a monotonically increasing grayscale colormap.
 %
+% CubeHelix is defined here: http://astron-soc.in/bulletin/11June/289392011.pdf
+% For more information and examples: http://www.mrao.cam.ac.uk/~dag/CUBEHELIX/
+%
 % This function offers two additional controls:
 %  <irange> specifies the intensity levels of the colormap's endnodes (lightness).
 %  <domain> subsamples a part of the helix, so the endnodes are color (not gray).
 % These options are both explained in the section below 'Range and Domain'.
 %
-%%% Syntax:
-%  map = cubehelix;
-%  map = cubehelix(N);
-%  map = cubehelix(N,start,rots,satn,gamma);
-%  map = cubehelix(N,start,rots,satn,gamma,irange);
-%  map = cubehelix(N,start,rots,satn,gamma,irange,domain);
-%  map = cubehelix(N,[start,rots,satn,gamma],...)
-%  map = cubehelix([],...)
-% [map,lo,hi] = cubehelix(...)
+%%% Syntax %%%
 %
-% CubeHelix is defined here: http://astron-soc.in/bulletin/11June/289392011.pdf
-% For more information and examples: http://www.mrao.cam.ac.uk/~dag/CUBEHELIX/
+%   map = cubehelix;
+%   map = cubehelix(N);
+%   map = cubehelix(N,start,rots,satn,gamma);
+%   map = cubehelix(N,start,rots,satn,gamma,irange);
+%   map = cubehelix(N,start,rots,satn,gamma,irange,domain);
+%   map = cubehelix(N,[start,rots,satn,gamma],...)
+%   map = cubehelix([],...)
+%   [map,lo,hi] = cubehelix(...)
 %
 % Note: The original specification (the links above) misnamed the saturation
 % option as "hue". In this function the saturation option is named "satn".
 %
 %% Dependencies %%
+%
 % None
 %
 %% Range and Domain %%
@@ -36,50 +38,54 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 % exactly the same as Dave Green's original algorithm: from black to white.
 %
 % The option <irange> sets the intensity level of the colormap's endnodes:
-% >> cubehelix(3, [0.5,-1.5,1,1], [0.2,0.8]) % irange=[0.2,0.8]
-% ans = 0.2          0.2          0.2     % <---  dark gray (not black)
-%       0.62751      0.47498      0.28642
-%       0.8          0.8          0.8     % <--- light gray (not white)
+% 
+%   >> cubehelix(3, [0.5,-1.5,1,1], [0.2,0.8]) % irange=[0.2,0.8]
+%   ans = 0.2          0.2          0.2     % <---  dark gray (not black)
+%         0.62751      0.47498      0.28642
+%         0.8          0.8          0.8     % <--- light gray (not white)
 %
 % The option <domain> sets the sampling window for the CubeHelix, such
 % that the tapered-helix does not taper all the way to unsaturated (gray).
 % This allows the colormap to end with colors rather than gray shades:
-% >> cubehelix(3, [0.5,-1.5,1,1], [0.2,0.8], [0.3,0.7]) % domain=[0.3,0.7]
-% ans = 0.020144     0.29948      0.15693 % <---  dark color (not gray)
-%       0.62751      0.47498      0.28642
-%       0.91366      0.71351      0.95395 % <--- light color (not gray)
+% 
+%   >> cubehelix(3, [0.5,-1.5,1,1], [0.2,0.8], [0.3,0.7]) % domain=[0.3,0.7]
+%   ans = 0.020144     0.29948      0.15693 % <---  dark color (not gray)
+%         0.62751      0.47498      0.28642
+%         0.91366      0.71351      0.95395 % <--- light color (not gray)
 %
 % The function CUBEHELIX_VIEW demonstrates the effects of these options.
 %
 %% Examples %%
 %
-%%% New colors for the COLORMAP example:
-% >> S = load('spine');
-% >> image(S.X)
-% >> colormap(cubehelix)
+%%% New colors for the COLORMAP example %%%
 %
-%%% New colors for the SURF example:
-% >> [X,Y,Z] = peaks(30);
-% >> surfc(X,Y,Z)
-% >> colormap(cubehelix([],0.7,-0.7,2,1,[0.1,0.9],[0.1,0.9]))
-% >> axis([-3,3,-3,3,-10,5])
+%   >> S = load('spine');
+%   >> image(S.X)
+%   >> colormap(cubehelix)
 %
-%% Input and Output Arguments %%
+%%% New colors for the SURF example %%%
 %
-%%% Inputs (**=default):
-% N = NumericScalar, N>=0, an integer to specify the colormap length.
-%   = []**, map has the same length as MATLAB's inbuilt colormap functions.
-% start = NumericScalar, +0.5**, the helix's start color (modulus 3): R=1, G=2, B=3.
-% rots  = NumericScalar, -1.5**, the number of R->G->B rotations over the full domain.
-% satn  = NumericScalar,  1.0**, controls how saturated the colors are.
-% gamma = NumericScalar,  1.0**, change the gamma to emphasize low or high intensity values.
-% irange = NumericVector, [0,1]**, range of brightness levels of the map's endnodes.
-% domain = NumericVector, [0,1]**, domain of the CubeHelix calculation (endnode positions).
+%   >> [X,Y,Z] = peaks(30);
+%   >> surfc(X,Y,Z)
+%   >> colormap(cubehelix([],0.7,-0.7,2,1,[0.1,0.9],[0.1,0.9]))
+%   >> axis([-3,3,-3,3,-10,5])
 %
-%%% Outputs:
-%  map = NumericMatrix, a colormap of RGB values between 0 and 1. Size Nx3
-%  lo  = LogicalMatrix, true where <map> values<0 were clipped to 0. Size Nx3
-%  hi  = LogicalMatrix, true where <map> values>1 were clipped to 1. Size Nx3
+%% Input Arguments (**=default) %%
+%
+%   N = NumericScalar, N>=0, an integer to specify the colormap length.
+%     = []**, map has the same length as MATLAB's inbuilt colormap functions.
+%   start = NumericScalar, +0.5**, the helix's start color (modulus 3): R=1, G=2, B=3.
+%   rots  = NumericScalar, -1.5**, the number of R->G->B rotations over the full domain.
+%   satn  = NumericScalar,  1.0**, controls how saturated the colors are.
+%   gamma = NumericScalar,  1.0**, change the gamma to emphasize low or high intensity values.
+%   irange = NumericVector, [0,1]**, range of brightness levels of the map's endnodes.
+%   domain = NumericVector, [0,1]**, domain of the CubeHelix calculation (endnode positions).
+%
+%% Output Arguments %%
+%
+%   map = NumericMatrix, a colormap of RGB values between 0 and 1. Size Nx3
+%   lo  = LogicalMatrix, true where <map> values<0 were clipped to 0. Size Nx3
+%   hi  = LogicalMatrix, true where <map> values>1 were clipped to 1. Size Nx3
 %
 % See also CUBEHELIX_VIEW PRESET_COLORMAP BREWERMAP MAXDISTCOLOR CMOCEAN
 % LBMAP PARULA LINES RGBPLOT COLORMAP COLORBAR PLOT PLOT3 AXES SET CONTOURF
