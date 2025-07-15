@@ -85,7 +85,7 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 %
 %% Dependencies %%
 %
-% * MATLAB R2009a or later.
+% * MATLAB R2009b or later.
 %
 % See also CUBEHELIX_VIEW PRESET_COLORMAP BREWERMAP MAXDISTCOLOR CMOCEAN
 % LBMAP PARULA LINES RGBPLOT COLORMAP COLORBAR PLOT PLOT3 AXES SET CONTOURF
@@ -215,7 +215,7 @@ end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cmDefaultN
 %
-% Copyright (c) 2013-2025 Stephen Cobeldick
+% Copyright (c) 2013-2026 Stephen Cobeldick
 %
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
