@@ -66,6 +66,13 @@ function [map,lo,hi,prm] = cubehelix_view(N,start,rots,satn,gamma,irange,domain)
 % See also CUBEHELIX BREWERMAP PRESET_COLORMAP MAXDISTCOLOR
 % RGBPLOT COLORMAP COLORMAPEDITOR COLORBAR UICONTROL ADDLISTENER
 persistent ax2D ln2D ax3D pt3D txtH is2D cbAx cbIm pTxt pSld prw
+% Release | Feature
+% --------|--------
+% R2008a  | assert(cond, msgID, msg, printf format string)
+% R2008a  | addlistener on uicontrol/graphics handle objects
+% R2009b  | tilde argument placeholder
+% R2014b  | isgraphics          [only reached when N = axes/figure handles]
+% R2019b  | colororder       [dead-code if-false branch, no runtime effect]
 %
 new = isempty(ax2D)||~ishghandle(ax2D);
 dfn = 256;
@@ -89,9 +96,9 @@ if nargin==0 || isnumeric(N)&&isequal(N,[])
 	N = dfn;
 elseif isnumeric(N)
 	assert(isscalar(N),...
-		'SC:brewermap_view:N:NotScalarNumeric',err)
+		'SC:cubehelix_view:N:NotScalarNumeric',err)
 	assert(isreal(N)&&isfinite(N)&&fix(N)==N&&N>0,...
-		'SC:brewermap_view:N:NotRealPositiveInteger',err)
+		'SC:cubehelix_view:N:NotRealPositiveInteger',err)
 	N = double(N);
 elseif all(ishghandle(N(:))) % R2014b or later
 	assert(all(isgraphics(N(:),'axes')|isgraphics(N(:),'figure')),...

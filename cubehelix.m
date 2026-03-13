@@ -9,6 +9,9 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 % CubeHelix is defined here: http://astron-soc.in/bulletin/11June/289392011.pdf
 % For more information and examples: http://www.mrao.cam.ac.uk/~dag/CUBEHELIX/
 %
+% Note: The original specification (the links above) misnamed the saturation
+% option as "hue". In this function the saturation option is named "satn".
+%
 % This function offers two additional controls:
 %  <irange> specifies the intensity levels of the colormap's endnodes (lightness).
 %  <domain> subsamples a part of the helix, so the endnodes are color (not gray).
@@ -24,9 +27,6 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 %   map = cubehelix(N,[start,rots,satn,gamma],...)
 %   map = cubehelix([],...)
 %   [map,lo,hi] = cubehelix(...)
-%
-% Note: The original specification (the links above) misnamed the saturation
-% option as "hue". In this function the saturation option is named "satn".
 %
 %% Range and Domain %%
 %
@@ -85,11 +85,17 @@ function [map,lo,hi,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 %
 %% Dependencies %%
 %
-% * MATLAB R2009b or later.
+% * MATLAB R2008a or later.
 %
 % See also CUBEHELIX_VIEW PRESET_COLORMAP BREWERMAP MAXDISTCOLOR CMOCEAN
 % LBMAP PARULA LINES RGBPLOT COLORMAP COLORBAR PLOT PLOT3 AXES SET CONTOURF
 
+% Release | Feature
+% --------|--------
+% R2004b  | anonymous functions, true/false/nan arrays, isscalar, isvector
+% R2008a  | assert(cond, msgID, msg, printf format string)
+% R2014b  | HG2 groot, F.Colormap in cmDefaultN     [HG1 fallback provided]
+%
 %% Input Wrangling %%
 %
 err = 'First input <N> must be a real scalar numeric or [].';
@@ -201,9 +207,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cubehelix
 function N = cmDefaultN()
 % Get the colormap size from the current figure or default colormap.
-try
+try % >=R2014b, HG2
 	F = get(groot,'CurrentFigure');
-catch %#ok<CTCH> pre HG2
+catch %#ok<CTCH> HG1
 	N = size(get(gcf,'colormap'),1);
 	return
 end
