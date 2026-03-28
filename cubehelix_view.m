@@ -44,7 +44,7 @@ function [map,lo,hi,prm] = cubehelix_view(N,start,rots,satn,gamma,irange,domain)
 %
 %   N = NumericScalar, an integer to define the colormap length.
 %     = []**, colormap length of two hundred and fifty-six (256).
-%     = Array of axes or figure handles. R2014b or later only.
+%     = Array of axes or figure handles (R2014b or later only).
 %   start = NumericScalar, the helix's start color (modulus 3), where R=1, G=2, B=3.
 %   rots  = NumericScalar, the number of R->G->B rotations over the full domain.
 %   satn  = NumericScalar, saturation controls how saturated the colors are.
@@ -65,19 +65,16 @@ function [map,lo,hi,prm] = cubehelix_view(N,start,rots,satn,gamma,irange,domain)
 %
 % See also CUBEHELIX BREWERMAP PRESET_COLORMAP MAXDISTCOLOR
 % RGBPLOT COLORMAP COLORMAPEDITOR COLORBAR UICONTROL ADDLISTENER
-persistent ax2D ln2D ax3D pt3D txtH is2D cbAx cbIm pTxt pSld prw
+persistent fgh fnhSetVals fnhGetVals
 % Release | Feature
 % --------|--------
 % R2008a  | assert(cond, msgID, msg, printf format string)
 % R2008a  | addlistener on uicontrol/graphics handle objects
 % R2009b  | tilde argument placeholder
-% R2014b  | isgraphics          [only reached when N = axes/figure handles]
+% R2014b  | isgraphics        [only reached when <N> = axes/figure handles]
 % R2019b  | colororder       [dead-code if-false branch, no runtime effect]
 %
-new = isempty(ax2D)||~ishghandle(ax2D);
 dfn = 256;
-upd = false;
-upb = false;
 hgv = [];
 nmr = dfn;
 %
@@ -119,18 +116,17 @@ txi = '%s input can be a vector of the endnode lightness levels <irange>.';
 txd = '%s input can be a vector of the endnode relative positions <domain>.';
 %
 % Default pseudo-random parameters:
-if nargin==0 || new
-	clk = sum(clock*100); %#ok<CLOCK>
-	foo = @(n)min(3,max(0,sqrt(-log(rem(clk/pow2(n),1))*2)));
-	bar = @(n)min(3,max(0,rem(clk/pow2(n),1)^36));
-	prw = [rem(clk,3);... % start
-		min(3,max(-3,log10(rem(clk,1)/(1-rem(clk,1)))));... % rotations
-		foo(5); foo(4);... % saturation and gamma
-		bar(3); 1-bar(2); bar(1); 1-bar(0)]; % irange and domain
-	% Original default parameters:
-	% prw = [0.5; -1.5;   1;   1; 0; 1; 0; 1];
-	%       [sta; rots; sat; gam; irng; domn]
-end
+clk = sum(clock*100); %#ok<CLOCK>
+foo = @(n)min(3,max(0,sqrt(-log(rem(clk/pow2(n),1))*2)));
+bar = @(n)min(3,max(0,rem(clk/pow2(n),1)^36));
+prw = [rem(clk,3);... % start
+	min(3,max(-3,log10(rem(clk,1)/(1-rem(clk,1)))));... % rotations
+	foo(5); foo(4);... % saturation and gamma
+	bar(3); 1-bar(2); bar(1); 1-bar(0)]; % irange and domain
+% Original default parameters:
+% prw = [0.5; -1.5;   1;   1; 0; 1; 0; 1];
+%       [sta; rots; sat; gam; irng; domn]
+%
 % Parse input parameters:
 switch nargin
 	case 2
@@ -155,6 +151,53 @@ end
 %
 %% Ensure Figure Exists %%
 %
+if isempty(fgh) || ~ishghandle(fgh)
+	[fgh,fnhSetVals,fnhGetVals] = chvNewFig();
+else
+	figure(fgh)
+end
+%
+fnhSetVals(N,prw,hgv,fnh,nmr)
+%
+if nargout
+	waitfor(fgh)
+	[map,lo,hi,prm] = fnhGetVals();
+else
+	clear map
+end
+%
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cubehelix_view
+function [figH,svh,gvh] = chvNewFig()
+% Create the GUI figure and all components.
+% All workspace variables and nested callback functions live here so that
+% repeated calls to CUBEHELIX_VIEW reuse this single workspace via the
+% returned function handles, rather than creating a new (stale) workspace.
+%
+map = [];
+lo  = [];
+hi  = [];
+N   = 256;
+prw = zeros(8,1);
+hgv = [];
+fnh = @colormap;
+nmr = 256;
+upd = false;
+upb = false;
+dfn = 256;
+%
+% Figure parameters:
+M   = 9;    % number of sliders
+gap = 0.01; % gaps
+bth = 0.04; % demo button height
+btw = 0.10; % demo button width
+uih = 0.40; % UI group height
+cbw = 0.23; % colorbar width (both together)
+cbh = 1-3*gap-bth; % colorbar height
+axh = 1-uih-2*gap; % axes height
+axw = 1-cbw-2*gap; % axes width
+slh = uih/M - gap; % slider height
+%
 % LHS and RHS slider bounds/limits, and slider step sizes:
 lbd = [  1; 0;-3; 0; 0; 0; 0; 0; 0]; % left limit
 rbd = [dfn; 3; 3; 3; 3; 1; 1; 1; 1]; % right limit
@@ -170,86 +213,92 @@ xyz = 'RGB'; % specify the order here.
 % Parameter names for each slider:
 spn = {'N';'start hue';'rotations';'saturation';'gamma';'irange(1)';'irange(2)';'domain(1)';'domain(2)'};
 %
-if new % Create a new figure.
-	%
-	% Figure parameters:
-	M = numel(spn); % number of sliders
-	gap = 0.01; % gaps
-	bth = 0.04; % demo button height
-	btw = 0.10; % demo button width
-	uih = 0.40; % UI group height
-	cbw = 0.23; % colorbar width (both together)
-	cbh = 1-3*gap-bth; % colorbar height
-	axh = 1-uih-2*gap; % axes height
-	axw = 1-cbw-2*gap; % axes width
-	slh = uih/M - gap; % slider height
-	%
-	figH = figure('NumberTitle','off', 'IntegerHandle','off',...
-		'Units','normalized', 'HandleVisibility','callback',...
-		'Name','CubeHelix Interactive Parameter Selector',...
-		'MenuBar','figure', 'Toolbar','none', 'Tag',mfilename);
-	%
-	% Add 2D lineplot:
-	ax2D = axes('Parent',figH, 'Position',[gap,uih+gap,axw,axh], 'Box','on',...
-		'ColorOrder',[1,0,0; 0,1,0; 0,0,1; 0.6,0.6,0.6], 'HitTest','off',...
-		'Visible','off', 'XLim',[0,1], 'YLim',[0,1], 'XTick',[], 'YTick',[]);
-	ln2D = line([0,0,0,0;1,1,1,1],[0,0,0,0;1,1,1,1], 'Parent',ax2D,...
-		'Visible','off', 'Linestyle','-', 'Marker','.');
-	%
-	% Add 3D scatterplot:
-	ax3D = axes('Parent',figH, 'OuterPosition',[0,uih,axw+2*gap,1-uih],...
-		'Visible','on', 'XLim',[0,1], 'YLim',[0,1], 'ZLim',[0,1], 'HitTest','on');
-	pt3D = patch('Parent',ax3D, 'XData',[0;1], 'YData',[0;1], 'ZData',[0;1],...
-		'Visible','on', 'LineStyle','none', 'FaceColor','none', 'MarkerEdgeColor','none',...
-		'Marker','o', 'MarkerFaceColor','flat', 'MarkerSize',10, 'FaceVertexCData',[1,1,0;1,0,1]);
-	view(ax3D,3);
-	grid(ax3D,'on')
-	lbl = {'Red','Green','Blue'};
-	xlabel(ax3D,lbl{xyz(1)})
-	ylabel(ax3D,lbl{xyz(2)})
-	zlabel(ax3D,lbl{xyz(3)})
-	%
-	% Add warning text:
-	txtH = text('Parent',ax2D, 'Units','normalized', 'Position',[0,1],...
-		'HorizontalAlignment','left', 'VerticalAlignment','top', 'Color','r');
-	%
-	% Add demo button:
-	demo = uicontrol(figH, 'Style','togglebutton', 'Units','normalized',...
-		'Position',[1-cbw/2,1-bth-gap,cbw/2-gap,bth], 'String','Demo',...
-		'Max',1, 'Min',0, 'Callback',@chvDemo); %#ok<NASGU>
-	% Add 2D/3D button:
-	is2D = uicontrol(figH, 'Style','togglebutton', 'Units','normalized',...
-		'Position',[1-cbw/1,1-bth-gap,cbw/2-gap,bth], 'String','2D / 3D',...
-		'Max',1, 'Min',0, 'Callback',@chv2D3D);
-	%
-	% Add colorbars:
-	C(1,1,:) = [1,1,1];
-	cbAx(2) = axes('Parent',figH, 'Visible','off', 'Units','normalized',...
-		'Position',[1-cbw/2,gap,cbw/2-gap,cbh], 'YLim',[0.5,1.5],...
-		'YDir','reverse', 'HitTest','off');
-	cbAx(1) = axes('Parent',figH, 'Visible','off', 'Units','normalized',...
-		'Position',[1-cbw/1,gap,cbw/2-gap,cbh], 'YLim',[0.5,1.5],...
-		'YDir','reverse', 'HitTest','off');
-	cbIm(2) = image('Parent',cbAx(2), 'CData',C);
-	cbIm(1) = image('Parent',cbAx(1), 'CData',C);
-	%
-	% Add parameter sliders, listeners, and corresponding text:
-	sv = mean([lbd,rbd],2);
-	for m = M:-1:1
-		Y = gap+(M-m)*(slh+gap);
-		pLab(m) = uicontrol(figH,'Style','text', 'Units','normalized',...
-			'Position',[gap,Y,btw,slh], 'String',spn{m});
-		pTxt(m) = uicontrol(figH,'Style','text', 'Units','normalized',...
-			'Position',[gap+btw,Y,btw,slh], 'String','X');
-		pSld(m) = uicontrol(figH,'Style','slider', 'Units','normalized',...
-			'Position',[2*btw+gap,Y,axw-2*btw,slh], 'Min',lbd(m), 'Max',rbd(m),...
-			'SliderStep',stp(m,:)/(rbd(m)-lbd(m)), 'Value',sv(m));
-		addlistener(pSld(m), 'Value', 'PostSet',@(~,~)chvSldr(m));
-	end
-	%
-end
+figH = figure('NumberTitle','off', 'IntegerHandle','off',...
+	'Units','normalized', 'HandleVisibility','callback',...
+	'Name','CubeHelix Interactive Parameter Selector',...
+	'MenuBar','figure', 'Toolbar','none', 'Tag',mfilename);
 %
-%% Nested Functions %%
+% Add 2D lineplot:
+ax2D = axes('Parent',figH, 'Position',[gap,uih+gap,axw,axh], 'Box','on',...
+	'ColorOrder',[1,0,0; 0,1,0; 0,0,1; 0.6,0.6,0.6], 'HitTest','off',...
+	'Visible','off', 'XLim',[0,1], 'YLim',[0,1], 'XTick',[], 'YTick',[]);
+ln2D = line([0,0,0,0;1,1,1,1],[0,0,0,0;1,1,1,1], 'Parent',ax2D,...
+	'Visible','off', 'Linestyle','-', 'Marker','.');
+%
+% Add 3D scatterplot:
+ax3D = axes('Parent',figH, 'OuterPosition',[0,uih,axw+2*gap,1-uih],...
+	'Visible','on', 'XLim',[0,1], 'YLim',[0,1], 'ZLim',[0,1], 'HitTest','on');
+pt3D = patch('Parent',ax3D, 'XData',[0;1], 'YData',[0;1], 'ZData',[0;1],...
+	'Visible','on', 'LineStyle','none', 'FaceColor','none', 'MarkerEdgeColor','none',...
+	'Marker','o', 'MarkerFaceColor','flat', 'MarkerSize',10, 'FaceVertexCData',[1,1,0;1,0,1]);
+view(ax3D,3);
+grid(ax3D,'on')
+lbl = {'Red','Green','Blue'};
+xlabel(ax3D,lbl{xyz(1)})
+ylabel(ax3D,lbl{xyz(2)})
+zlabel(ax3D,lbl{xyz(3)})
+%
+% Add warning text:
+txtH = text('Parent',ax2D, 'Units','normalized', 'Position',[0,1],...
+	'HorizontalAlignment','left', 'VerticalAlignment','top', 'Color','r');
+%
+% Add demo button:
+demo = uicontrol(figH, 'Style','togglebutton', 'Units','normalized',...
+	'Position',[1-cbw/2,1-bth-gap,cbw/2-gap,bth], 'String','Demo',...
+	'Max',1, 'Min',0, 'Callback',@chvDemo); %#ok<NASGU>
+% Add 2D/3D button:
+is2D = uicontrol(figH, 'Style','togglebutton', 'Units','normalized',...
+	'Position',[1-cbw/1,1-bth-gap,cbw/2-gap,bth], 'String','2D / 3D',...
+	'Max',1, 'Min',0, 'Callback',@chv2D3D);
+%
+% Add colorbars:
+C(1,1,:) = [1,1,1];
+cbAx(2) = axes('Parent',figH, 'Visible','off', 'Units','normalized',...
+	'Position',[1-cbw/2,gap,cbw/2-gap,cbh], 'YLim',[0.5,1.5],...
+	'YDir','reverse', 'HitTest','off');
+cbAx(1) = axes('Parent',figH, 'Visible','off', 'Units','normalized',...
+	'Position',[1-cbw/1,gap,cbw/2-gap,cbh], 'YLim',[0.5,1.5],...
+	'YDir','reverse', 'HitTest','off');
+cbIm(2) = image('Parent',cbAx(2), 'CData',C);
+cbIm(1) = image('Parent',cbAx(1), 'CData',C);
+%
+% Add parameter sliders, listeners, and corresponding text:
+sv = mean([lbd,rbd],2);
+for m = M:-1:1
+	Y = gap+(M-m)*(slh+gap);
+	pLab(m) = uicontrol(figH,'Style','text', 'Units','normalized',...
+		'Position',[gap,Y,btw,slh], 'String',spn{m}); %#ok<AGROW>
+	pTxt(m) = uicontrol(figH,'Style','text', 'Units','normalized',...
+		'Position',[gap+btw,Y,btw,slh], 'String','X'); %#ok<AGROW>
+	pSld(m) = uicontrol(figH,'Style','slider', 'Units','normalized',...
+		'Position',[2*btw+gap,Y,axw-2*btw,slh], 'Min',lbd(m), 'Max',rbd(m),...
+		'SliderStep',stp(m,:)/(rbd(m)-lbd(m)), 'Value',sv(m)); %#ok<AGROW>
+	addlistener(pSld(m), 'Value', 'PostSet',@(~,~)chvSldr(m));
+end
+clear pLab % handles retained by figure; variable not needed further
+%
+%% Set & Get Functions %%
+%
+svh = @chvSetVals;
+gvh = @chvGetVals;
+%
+	function chvSetVals(varargin)
+		% Inject new call-time inputs into this workspace, then refresh.
+		N   = varargin{1};
+		prw = varargin{2};
+		hgv = varargin{3};
+		fnh = varargin{4};
+		nmr = varargin{5};
+		set(pSld, {'Value'},num2cell(max(lbd,min(rbd,[N;prw]))));
+		upd = true;
+		chvUpDt()
+	end
+%
+	function varargout = chvGetVals()
+		varargout = {map,lo,hi,prw};
+	end
+%
+%% Nested Callback Functions %%
 %
 	function chvUpDt()
 		% Update all graphics objects in the figure.
@@ -373,21 +422,8 @@ end
 		%
 	end
 %
-%% Initialize the Figure %%
-%
-set(pSld, {'Value'},num2cell(max(lbd,min(rbd,[N;prw]))));
-upd = true;
-chvUpDt()
-%
-if nargout
-	waitfor(ax2D);
-	prm = prw;
-else
-	clear map
 end
-%
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cubehelix_view
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%chvNewFig
 function V = prmChk(varargin)
 % Check that separate parameter values are real scalar numerics.
 for k = 1:nargin
