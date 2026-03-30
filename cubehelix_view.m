@@ -68,11 +68,11 @@ function [map,lo,hi,prm] = cubehelix_view(N,start,rots,satn,gamma,irange,domain)
 persistent fgh fnhSetVals fnhGetVals
 % Release | Feature
 % --------|--------
+% R2019b  | colororder       [dead-code if-false branch, no runtime effect]
+% R2014b  | isgraphics        [only reached when <N> = axes/figure handles]
+% R2009b  | tilde argument placeholder
 % R2008a  | assert(cond, msgID, msg, printf format string)
 % R2008a  | addlistener on uicontrol/graphics handle objects
-% R2009b  | tilde argument placeholder
-% R2014b  | isgraphics        [only reached when <N> = axes/figure handles]
-% R2019b  | colororder       [dead-code if-false branch, no runtime effect]
 %
 dfn = 256;
 hgv = [];
@@ -169,7 +169,8 @@ end
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%cubehelix_view
 function [figH,svh,gvh] = chvNewFig()
-% Create the GUI figure and all components.
+% Create the graphics objects. Define all callback functions in one workspace.
+%
 % All workspace variables and nested callback functions live here so that
 % repeated calls to CUBEHELIX_VIEW reuse this single workspace via the
 % returned function handles, rather than creating a new (stale) workspace.
@@ -216,7 +217,7 @@ spn = {'N';'start hue';'rotations';'saturation';'gamma';'irange(1)';'irange(2)';
 figH = figure('NumberTitle','off', 'IntegerHandle','off',...
 	'Units','normalized', 'HandleVisibility','callback',...
 	'Name','CubeHelix Interactive Parameter Selector',...
-	'MenuBar','figure', 'Toolbar','none', 'Tag',mfilename);
+	'MenuBar','figure', 'Toolbar','none', 'Tag',mfilename());
 %
 % Add 2D lineplot:
 ax2D = axes('Parent',figH, 'Position',[gap,uih+gap,axw,axh], 'Box','on',...
@@ -298,7 +299,7 @@ gvh = @chvGetVals;
 		varargout = {map,lo,hi,prw};
 	end
 %
-%% Nested Callback Functions %%
+%% Callback Functions %%
 %
 	function chvUpDt()
 		% Update all graphics objects in the figure.
@@ -445,14 +446,9 @@ end
 %
 % Copyright (c) 2013-2026 Stephen Cobeldick
 %
-% Licensed under the Apache License, Version 2.0 (the "License");
-% you may not use this file except in compliance with the License.
-% You may obtain a copy of the License at
+% Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 %
 % http://www.apache.org/licenses/LICENSE-2.0
 %
-% Unless required by applicable law or agreed to in writing, software
-% distributed under the License is distributed on an "AS IS" BASIS,
-% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-% See the License for the specific language governing permissions and limitations under the License.
+% Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%license
