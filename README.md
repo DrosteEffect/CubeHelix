@@ -35,13 +35,13 @@ New colors for the SURF example:
 
 ### Bonus Function ###
 
-CUBEHELIX_VIEW creates an interactive figure that allows control of the colormap parameters, and contains two colorbars showing colors of the colormap and the grayscale equivalent.
+CUBEHELIX_GUI_VIEW creates an interactive figure that allows control of the colormap parameters, and contains two colorbars showing colors of the colormap and the grayscale equivalent.
 
-R2014b or later: CUBEHELIX_VIEW can also update other axes' or figures' colormaps in real time, for example:
+R2014b or later: CUBEHELIX_GUI_VIEW can also update other axes' or figures' colormaps in real time, for example:
 
     S = load('spine');
     image(S.X)
-    cubehelix_view(gca)
+    cubehelix_GUI_view(gca)
 
 PRESET_COLORMAP is a wrapper for any colormap function, storing the function and any parameter values for future calls.
 
