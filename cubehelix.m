@@ -49,7 +49,7 @@ function [map,lox,hix,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 %         0.62751      0.47498      0.28642
 %         0.91366      0.71351      0.95395 % <--- light color (not gray)
 %
-% The function CUBEHELIX_GUI_VIEW demonstrates the effects of these options.
+% The function CUBEHELIXGUI demonstrates the effects of these options.
 %
 %% Examples %%
 %
@@ -87,7 +87,7 @@ function [map,lox,hix,prm] = cubehelix(N,start,rots,satn,gamma,irange,domain)
 %
 % * MATLAB R2008a or later.
 %
-% See also CUBEHELIX_GUI_VIEW PRESET_COLORMAP BREWERMAP
+% See also CUBEHELIXGUI PRESET_COLORMAP BREWERMAP
 % LBMAP PARULA LINES MAXDISTCOLOR RGBPLOT COLORMAP COLORORDER AXES SET
 
 % Release | Feature
